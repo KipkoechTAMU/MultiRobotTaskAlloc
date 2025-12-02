@@ -46,29 +46,6 @@ pip install -e .
 # The supervisor and robot controllers will automatically start
 ```
 
-### Running Experiments
-```python
-# Experiment 1: Growth rate changes
-python experiments/experiment_1_changing_rates.py
-
-# Experiment 2: Robot failures
-python experiments/experiment_2_robot_failures.py
-
-# Experiment 3: Parameter sensitivity
-python experiments/experiment_3_parameter_sweep.py
-```
-
-### Analyzing Results
-```python
-from analysis.plot_results import ResultsPlotter
-
-plotter = ResultsPlotter("logs/your_experiment.csv")
-plotter.plot_experiment_results("results/plot.png")
-plotter.plot_convergence_metrics()
-
-stats = plotter.compute_statistics()
-print(stats)
-```
 
 ## Project Structure
 ```
@@ -140,52 +117,6 @@ P(switch i→j) = ρ[p_j - p_i]_+
 P(stay at i) = 1 - ρ Σ_j [p_j - p_i]_+
 ```
 
-## Running Tests
-```bash
-# Run all tests
-pytest tests/
-
-# Run specific test
-pytest tests/test_consumption_model.py
-
-# With coverage
-pytest --cov=models --cov=controllers tests/
-```
-
-## Experiments
-
-### Experiment 1: Changing Growth Rates
-
-Tests algorithm responsiveness when environment dynamics change.
-```python
-# Temporary surge
-python experiments/experiment_1_changing_rates.py --mode surge
-
-# Permanent change
-python experiments/experiment_1_changing_rates.py --mode permanent
-```
-
-### Experiment 2: Robot Failures
-
-Tests resilience to robot failures.
-```python
-# Temporary failures
-python experiments/experiment_2_robot_failures.py --mode temporary
-
-# Cascading failures
-python experiments/experiment_2_robot_failures.py --mode cascading
-```
-
-### Experiment 3: Parameter Sensitivity
-
-Tests effect of parameters (ν, λ, ρ) on performance.
-```python
-# ν sweep
-python experiments/experiment_3_parameter_sweep.py --parameter nu
-
-# λ sweep
-python experiments/experiment_3_parameter_sweep.py --parameter lambda
-```
 
 ## Performance Metrics
 
