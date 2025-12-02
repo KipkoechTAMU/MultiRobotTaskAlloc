@@ -1,0 +1,905 @@
+#VRML_SIM R2023b utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/robots/gctronic/e-puck/protos/E-puck.proto"
+
+WorldInfo {
+  info [
+    "Multi-Robot Trash Collection Simulation"
+    "Based on Park, Zhong, Leonard (ICRA 2021)"
+  ]
+  title "Game-Theoretic Task Allocation"
+  basicTimeStep 16
+  contactProperties [
+    ContactProperties {
+      material1 "trash"
+      material2 "robot"
+      coulombFriction [
+        0.5
+      ]
+    }
+  ]
+}
+
+Viewpoint {
+  orientation -0.5 0.5 0.7071 1.8
+  position 0 0 25
+  follow "e-puck_0"
+  followSmoothness 0.01
+}
+
+TexturedBackground {
+}
+
+TexturedBackgroundLight {
+}
+
+RectangleArena {
+  translation 0 0 0
+  floorSize 15 15
+  floorTileSize 1 1
+  wallHeight 0.3
+}
+
+# Patch 1 (top-left quadrant)
+DEF PATCH_1 Solid {
+  translation -3.75 3.75 0.001
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0.2 0.2
+        transparency 0.7
+        metalness 0
+      }
+      geometry Box {
+        size 6 6 0.001
+      }
+    }
+  ]
+  name "patch_1"
+  boundingObject Box {
+    size 6 6 0.001
+  }
+}
+
+# Patch 2 (bottom-left quadrant)
+DEF PATCH_2 Solid {
+  translation -3.75 -3.75 0.001
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0.6 0.2
+        transparency 0.7
+        metalness 0
+      }
+      geometry Box {
+        size 6 6 0.001
+      }
+    }
+  ]
+  name "patch_2"
+  boundingObject Box {
+    size 6 6 0.001
+  }
+}
+
+# Patch 3 (bottom-right quadrant)
+DEF PATCH_3 Solid {
+  translation 3.75 -3.75 0.001
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.2 1 0.2
+        transparency 0.7
+        metalness 0
+      }
+      geometry Box {
+        size 6 6 0.001
+      }
+    }
+  ]
+  name "patch_3"
+  boundingObject Box {
+    size 6 6 0.001
+  }
+}
+
+# Patch 4 (top-right quadrant)
+DEF PATCH_4 Solid {
+  translation 3.75 3.75 0.001
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.2 0.2 1
+        transparency 0.7
+        metalness 0
+      }
+      geometry Box {
+        size 6 6 0.001
+      }
+    }
+  ]
+  name "patch_4"
+  boundingObject Box {
+    size 6 6 0.001
+  }
+}
+
+# Dumpster areas (one in each corner)
+DEF DUMPSTER_1 Solid {
+  translation -6.5 6.5 0.15
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.3 0.3 0.3
+        metalness 1
+      }
+      geometry Box {
+        size 1 1 0.3
+      }
+    }
+  ]
+  name "dumpster_1"
+  boundingObject Box {
+    size 1 1 0.3
+  }
+}
+
+DEF DUMPSTER_2 Solid {
+  translation -6.5 -6.5 0.15
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.3 0.3 0.3
+        metalness 1
+      }
+      geometry Box {
+        size 1 1 0.3
+      }
+    }
+  ]
+  name "dumpster_2"
+  boundingObject Box {
+    size 1 1 0.3
+  }
+}
+
+DEF DUMPSTER_3 Solid {
+  translation 6.5 -6.5 0.15
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.3 0.3 0.3
+        metalness 1
+      }
+      geometry Box {
+        size 1 1 0.3
+      }
+    }
+  ]
+  name "dumpster_3"
+  boundingObject Box {
+    size 1 1 0.3
+  }
+}
+
+DEF DUMPSTER_4 Solid {
+  translation 6.5 6.5 0.15
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.3 0.3 0.3
+        metalness 1
+      }
+      geometry Box {
+        size 1 1 0.3
+      }
+    }
+  ]
+  name "dumpster_4"
+  boundingObject Box {
+    size 1 1 0.3
+  }
+}
+
+# Robot Supervisor (manages trash spawning and statistics)
+Robot {
+  translation 0 0 0.5
+  children [
+    Emitter {
+      channel 1
+    }
+    Receiver {
+      channel 1
+    }
+  ]
+  name "supervisor"
+  controller "supervisor_controller"
+  supervisor TRUE
+}
+
+# 40 E-puck robots distributed across patches
+DEF EPUCK_0 E-puck {
+  translation -3.75 3.75 0
+  rotation 0 0 1 0
+  controller "robot_controller"
+  name "e-puck_0"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_1 E-puck {
+  translation -3.5 3.5 0
+  rotation 0 0 1 0.785
+  controller "robot_controller"
+  name "e-puck_1"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_2 E-puck {
+  translation -4.0 3.5 0
+  rotation 0 0 1 1.57
+  controller "robot_controller"
+  name "e-puck_2"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_3 E-puck {
+  translation -4.0 4.0 0
+  rotation 0 0 1 2.35
+  controller "robot_controller"
+  name "e-puck_3"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_4 E-puck {
+  translation -3.5 4.0 0
+  rotation 0 0 1 3.14
+  controller "robot_controller"
+  name "e-puck_4"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_5 E-puck {
+  translation -3.2 3.8 0
+  rotation 0 0 1 0.5
+  controller "robot_controller"
+  name "e-puck_5"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_6 E-puck {
+  translation -4.3 3.8 0
+  rotation 0 0 1 1.2
+  controller "robot_controller"
+  name "e-puck_6"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_7 E-puck {
+  translation -4.3 3.2 0
+  rotation 0 0 1 2.0
+  controller "robot_controller"
+  name "e-puck_7"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_8 E-puck {
+  translation -3.2 3.2 0
+  rotation 0 0 1 2.8
+  controller "robot_controller"
+  name "e-puck_8"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_9 E-puck {
+  translation -3.9 4.3 0
+  rotation 0 0 1 0.3
+  controller "robot_controller"
+  name "e-puck_9"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+# Patch 2 robots (10-19)
+DEF EPUCK_10 E-puck {
+  translation -3.75 -3.75 0
+  rotation 0 0 1 0
+  controller "robot_controller"
+  name "e-puck_10"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_11 E-puck {
+  translation -3.5 -3.5 0
+  rotation 0 0 1 0.785
+  controller "robot_controller"
+  name "e-puck_11"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_12 E-puck {
+  translation -4.0 -3.5 0
+  rotation 0 0 1 1.57
+  controller "robot_controller"
+  name "e-puck_12"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_13 E-puck {
+  translation -4.0 -4.0 0
+  rotation 0 0 1 2.35
+  controller "robot_controller"
+  name "e-puck_13"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_14 E-puck {
+  translation -3.5 -4.0 0
+  rotation 0 0 1 3.14
+  controller "robot_controller"
+  name "e-puck_14"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_15 E-puck {
+  translation -3.2 -3.8 0
+  rotation 0 0 1 0.5
+  controller "robot_controller"
+  name "e-puck_15"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_16 E-puck {
+  translation -4.3 -3.8 0
+  rotation 0 0 1 1.2
+  controller "robot_controller"
+  name "e-puck_16"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_17 E-puck {
+  translation -4.3 -3.2 0
+  rotation 0 0 1 2.0
+  controller "robot_controller"
+  name "e-puck_17"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_18 E-puck {
+  translation -3.2 -3.2 0
+  rotation 0 0 1 2.8
+  controller "robot_controller"
+  name "e-puck_18"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_19 E-puck {
+  translation -3.9 -4.3 0
+  rotation 0 0 1 0.3
+  controller "robot_controller"
+  name "e-puck_19"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+# Patch 3 robots (20-29)
+DEF EPUCK_20 E-puck {
+  translation 3.75 -3.75 0
+  rotation 0 0 1 0
+  controller "robot_controller"
+  name "e-puck_20"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_21 E-puck {
+  translation 3.5 -3.5 0
+  rotation 0 0 1 0.785
+  controller "robot_controller"
+  name "e-puck_21"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_22 E-puck {
+  translation 4.0 -3.5 0
+  rotation 0 0 1 1.57
+  controller "robot_controller"
+  name "e-puck_22"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_23 E-puck {
+  translation 4.0 -4.0 0
+  rotation 0 0 1 2.35
+  controller "robot_controller"
+  name "e-puck_23"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_24 E-puck {
+  translation 3.5 -4.0 0
+  rotation 0 0 1 3.14
+  controller "robot_controller"
+  name "e-puck_24"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_25 E-puck {
+  translation 3.2 -3.8 0
+  rotation 0 0 1 0.5
+  controller "robot_controller"
+  name "e-puck_25"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_26 E-puck {
+  translation 4.3 -3.8 0
+  rotation 0 0 1 1.2
+  controller "robot_controller"
+  name "e-puck_26"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_27 E-puck {
+  translation 4.3 -3.2 0
+  rotation 0 0 1 2.0
+  controller "robot_controller"
+  name "e-puck_27"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_28 E-puck {
+  translation 3.2 -3.2 0
+  rotation 0 0 1 2.8
+  controller "robot_controller"
+  name "e-puck_28"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_29 E-puck {
+  translation 3.9 -4.3 0
+  rotation 0 0 1 0.3
+  controller "robot_controller"
+  name "e-puck_29"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+# Patch 4 robots (30-39)
+DEF EPUCK_30 E-puck {
+  translation 3.75 3.75 0
+  rotation 0 0 1 0
+  controller "robot_controller"
+  name "e-puck_30"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_31 E-puck {
+  translation 3.5 3.5 0
+  rotation 0 0 1 0.785
+  controller "robot_controller"
+  name "e-puck_31"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_32 E-puck {
+  translation 4.0 3.5 0
+  rotation 0 0 1 1.57
+  controller "robot_controller"
+  name "e-puck_32"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_33 E-puck {
+  translation 4.0 4.0 0
+  rotation 0 0 1 2.35
+  controller "robot_controller"
+  name "e-puck_33"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_34 E-puck {
+  translation 3.5 4.0 0
+  rotation 0 0 1 3.14
+  controller "robot_controller"
+  name "e-puck_34"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_35 E-puck {
+  translation 3.2 3.8 0
+  rotation 0 0 1 0.5
+  controller "robot_controller"
+  name "e-puck_35"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_36 E-puck {
+  translation 4.3 3.8 0
+  rotation 0 0 1 1.2
+  controller "robot_controller"
+  name "e-puck_36"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_37 E-puck {
+  translation 4.3 3.2 0
+  rotation 0 0 1 2.0
+  controller "robot_controller"
+  name "e-puck_37"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_38 E-puck {
+  translation 3.2 3.2 0
+  rotation 0 0 1 2.8
+  controller "robot_controller"
+  name "e-puck_38"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
+
+DEF EPUCK_39 E-puck {
+  translation 3.9 4.3 0
+  rotation 0 0 1 0.3
+  controller "robot_controller"
+  name "e-puck_39"
+  emitter_channel 1
+  receiver_channel 1
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+    InertialUnit {
+    }
+  ]
+}
